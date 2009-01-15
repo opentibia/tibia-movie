@@ -21,9 +21,9 @@
 #include "clients.h"
 
 ClientInfo clients[] = {
-	{0,0,0, false, false, 0, 0, 0, 0},
-//  version XTEA  CRC         gameState      -        XTEA key               recv
-	{8,4,0, true, true, (uint32_t*)0x788370, 4, (uint32_t*)0x784D0C, (uint32_t*)0x5AB5D4}
+	{0,0,0, false, false, 0, 0, 0, 0, 0, 0},
+//  version XTEA  CRC         gameState      -        XTEA key               recv                   send             connect
+	{8,4,0, true, true, (uint32_t*)0x788370, 4, (uint32_t*)0x784D0C, (uint32_t*)0x5AB5D4, (uint32_t*)0x5AB600, (uint32_t*)0x5AB5B4}
 };
 
 const ClientInfo& getClientInfo(const ClientVersion& version)

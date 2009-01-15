@@ -21,15 +21,53 @@
 #ifndef __TBMV_SERVER_H__
 #define __TBMV_SERVER_H__
 
+#include <string>
+#include "packet.h"
+#include "winsock2.h"
+#include "windows.h"
+
+class Codec;
+
 class Server{
 public:
 	Server();
 	~Server();
 
-	void setFile(const char* file);
-	void setPlaySpeed(float speed);
+	void setFile(const char* file) {m_fileName = file;}
+	void setPlaySpeed(float speed) {m_playSpeed = speed;}
+
+	void setCrypto(uint32_t* const key);
+	void setCRC(){m_packet.setCRC();}
+
+	bool isStarted(){ return m_isStarted;}
+	bool startServer();
+
+	uint16_t getPort(){ return m_port;}
 
 private:
+
+	static DWORD WINAPI serverThread(Server* this_ptr);
+
+	bool sendPacket();
+
+	std::string m_fileName;
+	float m_playSpeed;
+
+	enum ServerState{
+		SERVER_STATE_LOGIN,
+		SERVER_STATE_GAME
+	};
+	ServerState m_state;
+	bool m_isStarted;
+
+	bool m_isEncrypted;
+	bool m_hasCRC;
+
+	Codec* m_codec;
+	Packet m_packet;
+
+	uint16_t m_port;
+	SOCKET m_clientSock;
 };
 
 #endif

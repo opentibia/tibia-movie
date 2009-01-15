@@ -18,34 +18,23 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __TBMV_CLIENTS_H__
-#define __TBMV_CLIENTS_H__
+#ifndef __TBMV_HOOKPLAY__H__
+#define __TBMV_HOOKPLAY__H__
 
-#include "common.h"
+#include <winsock2.h>
+#include <windows.h>
 
-struct ClientInfo{
-	int major;
-	int minor;
-	int revision;
+#ifdef BUILD_DLL
+    #define DLL_EXPORT __declspec(dllexport)
+#else
+    #define DLL_EXPORT __declspec(dllimport)
+#endif
 
-	//packet type
-	bool isEncrypted;
-	bool hasCRC;
-
-	//game mode
-	uint32_t* gameState;
-	uint32_t minGameState;
-
-	//XTEA
-	uint32_t* XTEAKey;
-
-	//hooks address
-	uint32_t* hook_recv;
-	uint32_t* hook_send;
-	uint32_t* hook_connect;
+class HookPlayer
+{
+public:
+    HookPlayer();
+	~HookPlayer();
 };
-
-const ClientInfo& getClientInfo(const ClientVersion& version);
-
 
 #endif

@@ -36,6 +36,7 @@ Codec(options, file)
 
 	m_buffer = NULL;
 	m_bufferOffset = 0;
+	m_currenPacket = 0;
 
 	m_fileLoaded = false;
 	m_state = TMV_STATE_NONE;
@@ -146,6 +147,7 @@ bool CodecTMV::getFirstPacket()
 		fclose(m_file);
 		m_fileLoaded = true;
 	}
+	m_currenPacket = 0;
 	m_bufferOffset = 0;
 	m_state = TMV_STATE_PLAY;
 	return true;
@@ -154,10 +156,12 @@ bool CodecTMV::getFirstPacket()
 bool CodecTMV::getNextPacket(char* buffer, uint32_t& len ,uint32_t& timestamp)
 {
 	if(!checkState(TMV_STATE_PLAY)) return false;
+	if(m_currenPacket >= m_npackets) return false;
 	len = *(uint16_t*)(m_buffer + m_bufferOffset);
 	timestamp = *(uint32_t*)(m_buffer + m_bufferOffset + 2);
 	memcpy(buffer, m_buffer + m_bufferOffset + 6, len);
 	m_bufferOffset += 6 + len;
+	m_currenPacket++;
 	return true;
 }
 

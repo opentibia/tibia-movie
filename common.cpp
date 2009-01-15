@@ -18,34 +18,19 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __TBMV_CLIENTS_H__
-#define __TBMV_CLIENTS_H__
-
 #include "common.h"
+#include "windows.h"
 
-struct ClientInfo{
-	int major;
-	int minor;
-	int revision;
-
-	//packet type
-	bool isEncrypted;
-	bool hasCRC;
-
-	//game mode
-	uint32_t* gameState;
-	uint32_t minGameState;
-
-	//XTEA
-	uint32_t* XTEAKey;
-
-	//hooks address
-	uint32_t* hook_recv;
-	uint32_t* hook_send;
-	uint32_t* hook_connect;
-};
-
-const ClientInfo& getClientInfo(const ClientVersion& version);
-
-
-#endif
+bool writeU32(uint32_t* address, const uint32_t value)
+{
+	MEMORY_BASIC_INFORMATION mbi;
+	DWORD old;
+	if(!VirtualQuery((void*)address, &mbi, sizeof(mbi))){
+		return false;
+	}
+	if(!VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, &old)){
+		return false;
+	}
+	*address = value;
+	return true;
+}

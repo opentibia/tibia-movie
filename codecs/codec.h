@@ -33,6 +33,7 @@ public:
 	virtual ~Codec();
 
 	static Codec* getCodec(uint32_t name, uint32_t options, const char* file);
+	static Codec* getCodec(const char* file);
 
 	//play
 	virtual bool getClientVersion(ClientVersion& version) = 0;

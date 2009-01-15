@@ -43,6 +43,25 @@ Codec* Codec::getCodec(uint32_t name, uint32_t options, const char* file)
 	return codec;
 }
 
+Codec* Codec::getCodec(const char* file)
+{
+	FILE* f = fopen(file, "rb");
+	if(!f) return NULL;
+
+	Codec* ret = NULL;
+	char magic[5];
+	fread(&magic, 4, 1, f); magic[4] = 0;
+	if(strcmp(magic, "TMV2") == 0){
+		ret = new CodecTMV(0, file);
+		Debug::printf("Codec: play TMV2\n");
+	}
+	else{
+		Debug::printf("Codec: play not known\n");
+	}
+	fclose(f);
+	return ret;
+}
+
 Codec::Codec(uint32_t options, const char* file)
 {
 	m_options = options;

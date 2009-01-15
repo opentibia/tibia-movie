@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "hook.h"
-#include "packet.h"
+#include "server.h"
 #include "../common.h"
 #include "../debug.h"
 #include "../clients.h"
@@ -33,48 +33,34 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 //Global variables
 RecordOptions g_options;
 ClientInfo g_info;
-bool g_keySet = false;
-const uint32_t* gameStateAddr = NULL;
-Packet* g_packet = NULL;
+Server g_server;
+HookPlayer g_hook;
 
-HookRecord g_hook;
-
-int WSAAPI recvHook(SOCKET s, char* buf, int len, int flags)
+int WSAAPI sendHook(SOCKET s, const char* buf, int len, int flags)
 {
-	Debug::printf("recv hook(%d %x %d %d)\n", s, buf, len, flags);
-
-	int r = recv(s, buf, len, flags);
-
-	Debug::printf("recv(%d) mode: %d\n", r, *gameStateAddr);
-
-	if(*gameStateAddr > g_info.minGameState){
-		Debug::printf("Game server\n");
-		//Game server
-		if(g_info.isEncrypted && !g_keySet){
-			g_packet->setCrypto(g_info.XTEAKey);
-			if(g_info.hasCRC) g_packet->setCRC();
-			g_keySet = true;
-		}
-		int bufOffset = 0;
-		int tmplen = r;
-		while(tmplen != 0){
-			int writeLen = r - bufOffset;
-			g_packet->addBytes(buf + bufOffset, writeLen);
-			Debug::printf("write len: %d\n",writeLen);
-			if(g_packet->isFinished()){
-				Debug::printf("Finished packet\n");
-				g_packet->record();
-				Debug::printf("------------\n");
-			}
-			bufOffset += writeLen;
-			tmplen -= writeLen;
-		}
-	}
-
+	Debug::printf("send hook(%d %x %d %d)\n", s, buf, len, flags);
+	if(g_info.isEncrypted) g_server.setCrypto(g_info.XTEAKey);
+	int r = send(s, buf, len, flags);
 	return r;
 }
 
-HookRecord::HookRecord()
+int WSAAPI connectHook(SOCKET s, sockaddr *name, int namelen)
+{
+	//if(!g_server.isStarted()) g_server.startServer();
+	Debug::printf("connect hook: ");
+	if(namelen == sizeof(sockaddr_in)){
+		sockaddr_in* sin = (sockaddr_in*)name;
+		sin->sin_port = htons(g_server.getPort());
+		sin->sin_addr.s_addr = inet_addr("127.0.0.1");
+		Debug::printf("changing ip/port\n");
+	}
+	else{
+		Debug::printf("failed to change ip/port\n");
+	}
+	return connect(s, name, namelen);;
+}
+
+HookPlayer::HookPlayer()
 {
 	Debug::start("debug.txt");
 
@@ -89,15 +75,16 @@ HookRecord::HookRecord()
 	g_info = getClientInfo(g_options.client);
 	Debug::printf("version: %d.%d.%d\n", g_info.major, g_info.minor, g_info.revision);
 
-	g_packet = new Packet;
-	g_packet->setRecorder(g_options);
+	writeU32(g_info.hook_send, (uint32_t)&sendHook);
+	writeU32(g_info.hook_connect, (uint32_t)&connectHook);
 
-	writeU32(g_info.hook_recv, (uint32_t)&recvHook);
-	gameStateAddr = g_info.gameState;
+	Debug::printf("filename: %s\n", g_options.fileName);
+	g_server.setFile(g_options.fileName);
+	if(g_info.hasCRC) g_server.setCRC();
+	g_server.startServer();
 }
 
-HookRecord::~HookRecord()
+HookPlayer::~HookPlayer()
 {
-	delete g_packet;
 	Debug::stop();
 }

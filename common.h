@@ -51,4 +51,6 @@ struct RecordOptions{
 	char fileName[1024];
 };
 
+bool writeU32(uint32_t* address, const uint32_t value);
+
 #endif

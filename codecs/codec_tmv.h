@@ -24,6 +24,8 @@
 #include "zlib.h"
 #include "codec.h"
 
+#pragma pack(1)
+
 struct CodecHeader{
 	uint32_t magic;
 	uint32_t options;
@@ -44,6 +46,8 @@ struct TMV2Header{
 	CodecHeader cheader;
 	DataHeader dheader;
 };
+
+#pragma pack()
 
 class CodecTMV : public Codec {
 public:
@@ -76,10 +80,10 @@ protected:
 	FILE* m_file;
 	char* m_buffer;
 	uint32_t m_bufferOffset;
+	uint32_t m_currenPacket;
 	bool m_fileLoaded;
 
 	TMVState m_state;
 };
-
 
 #endif
