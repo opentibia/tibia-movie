@@ -29,15 +29,15 @@ Codec* Codec::getCodec(uint32_t name, uint32_t options, const char* file)
 	switch(name){
 	case 'TEXT':
 		codec = new CodecText(options, file);
-		Debug::printf("Codec: TEXT\n");
+		Debug::printf(DEBUG_INFO, "Codec: TEXT\n");
 		break;
 	case 'TMV2':
 		codec = new CodecTMV(options, file);
-		Debug::printf("Codec: TMV2\n");
+		Debug::printf(DEBUG_INFO,"Codec: TMV2\n");
 		break;
 	default:
 		codec = NULL;
-		Debug::printf("Codec: not known\n");
+		Debug::printf(DEBUG_ERROR,"Codec: not known\n");
 		break;
 	}
 	return codec;
@@ -46,17 +46,20 @@ Codec* Codec::getCodec(uint32_t name, uint32_t options, const char* file)
 Codec* Codec::getCodec(const char* file)
 {
 	FILE* f = fopen(file, "rb");
-	if(!f) return NULL;
+	if(!f){
+		Debug::printf(DEBUG_ERROR, "getCodec: error opening %s\n", file);
+		return NULL;
+	}
 
 	Codec* ret = NULL;
-	char magic[5];
-	fread(&magic, 4, 1, f); magic[4] = 0;
-	if(strcmp(magic, "TMV2") == 0){
+	char magic[4];
+	fread(&magic, 4, 1, f);
+	if(memcmp(magic, "TMV2", 4) == 0){
 		ret = new CodecTMV(0, file);
-		Debug::printf("Codec: play TMV2\n");
+		Debug::printf(DEBUG_INFO, "Codec: play TMV2\n");
 	}
 	else{
-		Debug::printf("Codec: play not known\n");
+		Debug::printf(DEBUG_ERROR, "Codec: play not known\n");
 	}
 	fclose(f);
 	return ret;
@@ -65,7 +68,6 @@ Codec* Codec::getCodec(const char* file)
 Codec::Codec(uint32_t options, const char* file)
 {
 	m_options = options;
-
 	m_fileName = file;
 }
 
@@ -89,7 +91,8 @@ CodecText::~CodecText()
 
 bool CodecText::record(unsigned char* const raw, int len, uint32_t timestamp)
 {
-	Debug::printf("CodecText: record %d\n", len);
+	if(!m_file) return false;
+	Debug::printf(DEBUG_NOTICE, "CodecText: record %d\n", len);
 	for(int i = 0; i < len; ++i){
 		fprintf(m_file, " %02X ", (uint32_t)raw[i]);
 	}
@@ -99,8 +102,11 @@ bool CodecText::record(unsigned char* const raw, int len, uint32_t timestamp)
 
 void CodecText::start()
 {
-	Debug::printf("CodecText: open %s\n", getFileName());
+	Debug::printf(DEBUG_INFO, "CodecText: open %s\n", getFileName());
 	m_file = fopen(getFileName(), "w");
+	if(!m_file){
+		Debug::printf(DEBUG_ERROR, "CodecText: error opening %s\n", getFileName());
+	}
 }
 
 void CodecText::stop()

@@ -18,21 +18,24 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __TBMV_DEBUG_H__
-#define __TBMV_DEBUG_H__
+#include "packet_rec.h"
+#include "string.h"
+#include <algorithm>
+#include "../debug.h"
 
-enum MessageType{
-	DEBUG_NONE = 0,
-	DEBUG_ERROR = 1,
-	DEBUG_INFO = 2,
-	DEBUG_NOTICE = 3
-};
+bool PacketRecord::record()
+{
+	int rawlen;
+	unsigned char* const raw = getRecRaw(rawlen);
 
-namespace Debug{
-	void start(const char* name);
-	void stop();
-	void setDebugLevel(MessageType level);
-	int printf(MessageType type, const char* format, ...);
-};
+	bool ret;
+	if(m_recorder){
+		ret = m_recorder->record(raw, rawlen);
+	}
+	else{
+		ret = false;
+	}
 
-#endif
+	clearRecBuffer();
+	return ret;
+}

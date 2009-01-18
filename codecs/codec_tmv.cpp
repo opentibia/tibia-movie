@@ -48,32 +48,38 @@ CodecTMV::~CodecTMV()
 	if(m_state == TMV_STATE_REC) stop();
 }
 
-bool CodecTMV::checkHeader(FILE* file)
+bool CodecTMV::checkHeader(FILE* file, TMV2Header& header)
 {
-	char magic[5];
-	fread(&magic, 4, 1, file); magic[4] = 0;
-	if(strcmp(magic, "TMV2") == 0){
-		return true;
-	}
-	else{
+	fread(&header, sizeof(header), 1, m_file);
+	//Check magic
+	if(memcmp(&header.cheader.magic, "TMV2", 4) != 0){
+		fclose(file);
+		Debug::printf(DEBUG_ERROR, "CodecTMV: Magic test failed. This is not TMV2!\n");
 		return false;
 	}
+	//and check hedaer version
+	if(header.dheader.dataHeaderVersion != 1){
+		fclose(file);
+		Debug::printf(DEBUG_ERROR, "CodecTMV: Header version != 1\n");
+		return false;
+	}
+	return true;
 }
 
 bool CodecTMV::getClientVersion(ClientVersion& version)
 {
 	FILE* file = fopen(getFileName(), "rb");
-	if(!checkHeader(file)){
-		fclose(file);
+	if(!file){
+		Debug::printf(DEBUG_ERROR, "CodecTMV: Failed to open file %s.\n", getFileName());
 		return false;
 	}
-	uint8_t tmp;
-	fread(&tmp, sizeof(tmp), 1, file);
-	version.major = tmp;
-	fread(&tmp, sizeof(tmp), 1, file);
-	version.minor = tmp;
-	fread(&tmp, sizeof(tmp), 1, file);
-	version.revision = tmp;
+	TMV2Header header;
+	if(!checkHeader(file, header)){
+		return false;
+	}
+	version.major = header.dheader.clientMajor;
+	version.minor = header.dheader.clientMinor;
+	version.revision = header.dheader.clientRevision;
 
 	fclose(file);
 	return true;
@@ -82,16 +88,17 @@ bool CodecTMV::getClientVersion(ClientVersion& version)
 uint32_t CodecTMV::getTotalTime()
 {
 	FILE* file = fopen(getFileName(), "rb");
-	if(!checkHeader(file)){
-		fclose(file);
+	if(!file){
+		Debug::printf(DEBUG_ERROR, "CodecTMV: Failed to open file %s.\n", getFileName());
 		return 0;
 	}
-	uint32_t tmp;
-	fseek(file, 19, SEEK_SET);
-	fread(&tmp, sizeof(tmp), 1, file);
+	TMV2Header header;
+	if(!checkHeader(file, header)){
+		return 0;
+	}
 
 	fclose(file);
-	return true;
+	return header.dheader.totalTime;
 }
 
 bool CodecTMV::checkState(TMVState req)
@@ -100,7 +107,7 @@ bool CodecTMV::checkState(TMVState req)
 		return true;
 	}
 	else{
-		Debug::printf("CodecTMV: Error checking state %d, req %d\n", m_state, req);
+		Debug::printf(DEBUG_ERROR, "CodecTMV: Error checking state %d, req %d\n", m_state, req);
 		return false;
 	}
 }
@@ -110,15 +117,12 @@ bool CodecTMV::getFirstPacket()
 	if(!checkState(TMV_STATE_PLAY)) return false;
 	if(!m_fileLoaded){
 		m_file = fopen(getFileName(), "rb");
-		if(!checkHeader(m_file)){
-			fclose(m_file);
+		if(!m_file){
+			Debug::printf(DEBUG_ERROR, "CodecTMV: Failed to open file %s.\n",getFileName());
 			return false;
 		}
-		fseek(m_file, 0, SEEK_SET);
 		TMV2Header header;
-		fread(&header, sizeof(header), 1, m_file);
-		if(header.dheader.dataHeaderVersion != 1){
-			fclose(m_file);
+		if(!checkHeader(m_file, header)){
 			return false;
 		}
 
@@ -132,6 +136,7 @@ bool CodecTMV::getFirstPacket()
 		if(header.cheader.options & 1){
 			//compressed
 			if(header.dheader.fileSize > (uint32_t)size*20){
+				Debug::printf(DEBUG_ERROR, "CodecTMV: Corrupted file? fileSize(%d) > 20*size(%d)\n", header.dheader.fileSize, 20*size);
 				fclose(m_file);
 				return false;
 			}
@@ -168,7 +173,8 @@ bool CodecTMV::getNextPacket(char* buffer, uint32_t& len ,uint32_t& timestamp)
 bool CodecTMV::record(unsigned char* const raw, int len, uint32_t timestamp)
 {
 	if(!checkState(TMV_STATE_REC)) return false;
-	Debug::printf("CodecTMV: record %d\n", len);
+	if(!m_file) return false;
+	Debug::printf(DEBUG_NOTICE, "CodecTMV: record %d\n", len);
 	uint16_t u16len = len;
 	m_npackets++;
 	m_lastTimeStamp = timestamp;
@@ -181,8 +187,12 @@ bool CodecTMV::record(unsigned char* const raw, int len, uint32_t timestamp)
 void CodecTMV::start()
 {
 	if(!checkState(TMV_STATE_REC)) return;
-	Debug::printf("CodecTMV: open %s\n", getFileName());
+	Debug::printf(DEBUG_INFO, "CodecTMV: open %s\n", getFileName());
 	m_file = fopen(getFileName(), "wb");
+	if(!m_file){
+		Debug::printf(DEBUG_ERROR, "CodecTMV: error opening %s\n", getFileName());
+		return;
+	}
 
 	//-- Codec header --
 	fwrite("TMV2", 4, 1, m_file);
@@ -239,6 +249,10 @@ void CodecTMV::stop()
 	//compress if required
 	if(getOptions() & 1){
 		FILE* file = fopen(getFileName(), "rb");
+		if(!file){
+			Debug::printf(DEBUG_ERROR, "CodecTMV: error compressing %s\n", getFileName());
+			return;
+		}
 		fseek(file, 0, SEEK_END);
 		long int size = ftell(file);
 		fseek(file, 0, SEEK_SET);

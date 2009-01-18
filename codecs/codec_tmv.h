@@ -70,7 +70,7 @@ protected:
 		TMV_STATE_NONE
 	};
 
-	bool checkHeader(FILE* file);
+	bool checkHeader(FILE* file, TMV2Header& header);
 	bool checkState(TMVState req);
 
 	uint32_t m_npackets;

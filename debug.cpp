@@ -23,21 +23,44 @@
 #include "stdarg.h"
 
 FILE* g_debug = NULL;
+MessageType g_debugLevel = DEBUG_INFO;
 
 void Debug::start(const char* name)
 {
 	g_debug = fopen(name, "w");
-	fprintf(g_debug, "Start client\n");
+	Debug::printf(DEBUG_INFO, "Start client\n");
 }
 
 void Debug::stop()
 {
-	fprintf(g_debug, "End client\n");
+	Debug::printf(DEBUG_INFO, "End client\n");
 	fclose(g_debug);
 }
 
-int Debug::printf(const char* format, ...)
+void Debug::setDebugLevel(MessageType level)
 {
+	g_debugLevel = level;
+}
+
+int Debug::printf(MessageType type, const char* format, ...)
+{
+	if(type > g_debugLevel){
+		return 0;
+	}
+
+	switch(type){
+	case DEBUG_NONE:
+		break;
+	case DEBUG_ERROR:
+		fprintf(g_debug, "[ERROR] ");
+		break;
+	case DEBUG_INFO:
+		fprintf(g_debug, "[INFO] ");
+		break;
+	case DEBUG_NOTICE:
+		fprintf(g_debug, "[NOTICE] ");
+		break;
+	}
 	va_list listPtr;
 	va_start(listPtr, format);
 	int ret =  vfprintf(g_debug, format, listPtr);

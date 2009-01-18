@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "hook.h"
-#include "packet.h"
+#include "packet_rec.h"
 #include "../common.h"
 #include "../debug.h"
 #include "../clients.h"
@@ -31,24 +31,24 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 //Global variables
-RecordOptions g_options;
-ClientInfo g_info;
+extern RecordOptions g_options;
+extern ClientInfo g_info;
 bool g_keySet = false;
 const uint32_t* gameStateAddr = NULL;
-Packet* g_packet = NULL;
+PacketRecord* g_packet = NULL;
 
 HookRecord g_hook;
 
 int WSAAPI recvHook(SOCKET s, char* buf, int len, int flags)
 {
-	Debug::printf("recv hook(%d %x %d %d)\n", s, buf, len, flags);
+	Debug::printf(DEBUG_NOTICE, "recv hook(%d %x %d %d)\n", s, buf, len, flags);
 
 	int r = recv(s, buf, len, flags);
 
-	Debug::printf("recv(%d) mode: %d\n", r, *gameStateAddr);
+	Debug::printf(DEBUG_NOTICE, "recv(%d) mode: %d\n", r, *gameStateAddr);
 
 	if(*gameStateAddr > g_info.minGameState){
-		Debug::printf("Game server\n");
+		Debug::printf(DEBUG_NOTICE, "Game server\n");
 		//Game server
 		if(g_info.isEncrypted && !g_keySet){
 			g_packet->setCrypto(g_info.XTEAKey);
@@ -59,12 +59,12 @@ int WSAAPI recvHook(SOCKET s, char* buf, int len, int flags)
 		int tmplen = r;
 		while(tmplen != 0){
 			int writeLen = r - bufOffset;
-			g_packet->addBytes(buf + bufOffset, writeLen);
-			Debug::printf("write len: %d\n",writeLen);
+			g_packet->recordBytes(buf + bufOffset, writeLen);
+			Debug::printf(DEBUG_NOTICE, "write len: %d\n",writeLen);
 			if(g_packet->isFinished()){
-				Debug::printf("Finished packet\n");
+				Debug::printf(DEBUG_NOTICE, "Finished packet\n");
 				g_packet->record();
-				Debug::printf("------------\n");
+				Debug::printf(DEBUG_NOTICE, "------------\n");
 			}
 			bufOffset += writeLen;
 			tmplen -= writeLen;
@@ -77,19 +77,9 @@ int WSAAPI recvHook(SOCKET s, char* buf, int len, int flags)
 HookRecord::HookRecord()
 {
 	Debug::start("debug.txt");
+	getRecordOptions();
 
-	HANDLE hFileMapping = OpenFileMapping(PAGE_READWRITE, FALSE, "TibiaMovie1");
-	LPVOID m_pvData = MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-
-	memcpy(&g_options, m_pvData, sizeof(g_options));
-
-	UnmapViewOfFile(m_pvData);
-	CloseHandle(hFileMapping);
-
-	g_info = getClientInfo(g_options.client);
-	Debug::printf("version: %d.%d.%d\n", g_info.major, g_info.minor, g_info.revision);
-
-	g_packet = new Packet;
+	g_packet = new PacketRecord;
 	g_packet->setRecorder(g_options);
 
 	writeU32(g_info.hook_recv, (uint32_t)&recvHook);

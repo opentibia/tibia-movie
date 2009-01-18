@@ -21,8 +21,8 @@
 #ifndef __TBMV_PACKET_H__
 #define __TBMV_PACKET_H__
 
-#include "../common.h"
-#include "../debug.h"
+#include "common.h"
+#include "debug.h"
 
 const int BUFFER_SIZE = 65535;
 
@@ -30,7 +30,11 @@ class Packet{
 public:
 	Packet() : m_offset(0), m_size(0),
 		m_isEncrypted(false), m_hasCRC(false),m_rawMode(false) {}
-	~Packet();
+	~Packet() {}
+
+	void setCrypto(uint32_t* const key);
+	void setCRC(){m_hasCRC = true;}
+	void setRawMode(bool mode){m_rawMode = mode;}
 
 	void addBytes(const char* buffer, int len);
 	void addU8(uint8_t d){addUx(d);}
@@ -38,16 +42,20 @@ public:
 	void addU32(uint32_t d){addUx(d);}
 	void addString(const char* d);
 
-	void setCrypto(uint32_t* const key);
-	void setCRC(){m_hasCRC = true;}
-	void setRawMode(bool mode){m_rawMode = mode;}
 
-	void clearBuffer(){ m_offset = getHeaderSize(); m_size = 0;}
-	void getRaw(const char*& buffer, int& size);
+	void clearSendBuffer(){ m_offset = getHeaderSize(); m_size = 0;}
+	void getSendRaw(const char*& buffer, int& size);
+
 
 	char* getBuffer(){ return m_buffer + getHeaderSize();}
 	uint32_t& getSize(){ return m_size;}
-private:
+
+	void recordBytes(const char* buffer, int &len);
+
+protected:
+
+	unsigned char* const getRecRaw(int& len);
+	void clearRecBuffer(){ m_offset = 0; m_size = 0; m_crc = 0;}
 
 	template<typename T>
 	void addUx(T d){
@@ -56,9 +64,7 @@ private:
 		m_size += sT; m_offset += sT;
 	}
 
-	unsigned char* const getRaw(int& len);
-
-	int getHeaderSize(bool raw = false) const{
+	uint32_t getHeaderSize(bool raw = false) const{
 		int header = 0;
 		if(!m_rawMode && !raw) header += 2;
 		if(m_isEncrypted) header +=2;
@@ -67,16 +73,19 @@ private:
 	}
 
 	void XTEA_encrypt();
+	bool XTEA_decrypt(int& len);
 
 	char m_buffer[BUFFER_SIZE + 6];
 	uint16_t m_offset;
 
 	uint32_t m_size;
+	uint32_t m_crc;
 
 	bool m_isEncrypted;
 	bool m_hasCRC;
 	bool m_rawMode;
 	uint32_t m_key[4];
 };
+
 
 #endif

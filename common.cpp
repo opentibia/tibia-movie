@@ -20,17 +20,49 @@
 
 #include "common.h"
 #include "windows.h"
+#include "debug.h"
+#include "clients.h"
+
+RecordOptions g_options;
+ClientInfo g_info;
 
 bool writeU32(uint32_t* address, const uint32_t value)
 {
 	MEMORY_BASIC_INFORMATION mbi;
 	DWORD old;
 	if(!VirtualQuery((void*)address, &mbi, sizeof(mbi))){
+		Debug::printf(DEBUG_ERROR, "VirtualQuery error\n");
 		return false;
 	}
 	if(!VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_READWRITE, &old)){
+		Debug::printf(DEBUG_ERROR, "VirtualProtect error\n");
 		return false;
 	}
 	*address = value;
+	return true;
+}
+
+bool getRecordOptions()
+{
+	HANDLE hFileMapping = OpenFileMapping(PAGE_READWRITE, FALSE, "TibiaMovie1");
+	if(!hFileMapping){
+		Debug::printf(DEBUG_ERROR, "Error opening file mapping\n");
+		return false;
+	}
+	LPVOID m_pvData = MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
+	if(!m_pvData){
+		Debug::printf(DEBUG_ERROR, "Error creating map view\n");
+		CloseHandle(hFileMapping);
+		return false;
+	}
+
+	memcpy(&g_options, m_pvData, sizeof(g_options));
+
+	UnmapViewOfFile(m_pvData);
+	CloseHandle(hFileMapping);
+
+	g_info = getClientInfo(g_options.client);
+	Debug::printf(DEBUG_INFO, "version: %d.%d.%d\n", g_info.major, g_info.minor, g_info.revision);
+
 	return true;
 }

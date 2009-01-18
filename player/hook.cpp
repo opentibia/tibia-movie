@@ -31,14 +31,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 //Global variables
-RecordOptions g_options;
-ClientInfo g_info;
+extern RecordOptions g_options;
+extern ClientInfo g_info;
 Server g_server;
 HookPlayer g_hook;
 
 int WSAAPI sendHook(SOCKET s, const char* buf, int len, int flags)
 {
-	Debug::printf("send hook(%d %x %d %d)\n", s, buf, len, flags);
+	Debug::printf(DEBUG_NOTICE, "send hook(%d %x %d %d)\n", s, buf, len, flags);
 	if(g_info.isEncrypted) g_server.setCrypto(g_info.XTEAKey);
 	int r = send(s, buf, len, flags);
 	return r;
@@ -47,15 +47,15 @@ int WSAAPI sendHook(SOCKET s, const char* buf, int len, int flags)
 int WSAAPI connectHook(SOCKET s, sockaddr *name, int namelen)
 {
 	//if(!g_server.isStarted()) g_server.startServer();
-	Debug::printf("connect hook: ");
+	Debug::printf(DEBUG_NOTICE, "connect hook: \n");
 	if(namelen == sizeof(sockaddr_in)){
 		sockaddr_in* sin = (sockaddr_in*)name;
 		sin->sin_port = htons(g_server.getPort());
 		sin->sin_addr.s_addr = inet_addr("127.0.0.1");
-		Debug::printf("changing ip/port\n");
+		Debug::printf(DEBUG_NOTICE, "Changing ip/port\n");
 	}
 	else{
-		Debug::printf("failed to change ip/port\n");
+		Debug::printf(DEBUG_ERROR, "Failed to change ip/port\n");
 	}
 	return connect(s, name, namelen);;
 }
@@ -64,21 +64,12 @@ HookPlayer::HookPlayer()
 {
 	Debug::start("debug.txt");
 
-	HANDLE hFileMapping = OpenFileMapping(PAGE_READWRITE, FALSE, "TibiaMovie1");
-	LPVOID m_pvData = MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-
-	memcpy(&g_options, m_pvData, sizeof(g_options));
-
-	UnmapViewOfFile(m_pvData);
-	CloseHandle(hFileMapping);
-
-	g_info = getClientInfo(g_options.client);
-	Debug::printf("version: %d.%d.%d\n", g_info.major, g_info.minor, g_info.revision);
+	getRecordOptions();
 
 	writeU32(g_info.hook_send, (uint32_t)&sendHook);
 	writeU32(g_info.hook_connect, (uint32_t)&connectHook);
 
-	Debug::printf("filename: %s\n", g_options.fileName);
+	Debug::printf(DEBUG_INFO, "filename: %s\n", g_options.fileName);
 	g_server.setFile(g_options.fileName);
 	if(g_info.hasCRC) g_server.setCRC();
 	g_server.startServer();

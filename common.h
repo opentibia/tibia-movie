@@ -52,5 +52,6 @@ struct RecordOptions{
 };
 
 bool writeU32(uint32_t* address, const uint32_t value);
+bool getRecordOptions();
 
 #endif

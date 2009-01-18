@@ -22,7 +22,7 @@
 #define __TBMV_SERVER_H__
 
 #include <string>
-#include "packet.h"
+#include "../packet.h"
 #include "winsock2.h"
 #include "windows.h"
 
