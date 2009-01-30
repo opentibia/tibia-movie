@@ -23,10 +23,12 @@
 DEFINE_EVENT_TYPE(wxEVT_APP_RECORD)
 DEFINE_EVENT_TYPE(wxEVT_APP_STOP)
 DEFINE_EVENT_TYPE(wxEVT_APP_SAVEAS)
+DEFINE_EVENT_TYPE(wxEVT_APP_OPEN)
 
 BEGIN_EVENT_TABLE(Application, wxApp)
 	EVT_BUTTON(wxEVT_APP_STOP, Application::OnStop)
 	EVT_BUTTON(wxEVT_APP_RECORD, Application::OnRecord)
+	EVT_MENU(wxEVT_APP_OPEN, Application::OnOpen)
 	EVT_MENU(wxEVT_APP_SAVEAS, Application::OnSaveAs)
 END_EVENT_TABLE()
 
@@ -41,7 +43,7 @@ IMPLEMENT_APP(Application)
 bool Application::OnInit()
 {
     mainFrame = new MainFrame(wxT("TibiaMovie"));
-	mainFrame->SetSize(wxSize(250, 300));
+	mainFrame->SetSize(wxSize(256, 200));
 	long lStyle = mainFrame->GetWindowStyle();
 	lStyle &= ~wxRESIZE_BORDER;
 	mainFrame->SetWindowStyleFlag(lStyle);
@@ -50,38 +52,41 @@ bool Application::OnInit()
 
 	wxFont font(10, wxDEFAULT, wxNORMAL, wxBOLD);
 
-	wxButton* btnRecord = new wxButton(panel, wxEVT_APP_RECORD, wxT("Record"), wxPoint(20, 20));
+	wxButton* btnRecord = new wxButton(panel, wxEVT_APP_RECORD, wxT("Record"), wxPoint(8, 12), wxSize(120, 28));
 	btnRecord->Show(true);
 	btnRecord->SetFont(font);
 
-	wxButton* btnClose = new wxButton(panel, wxEVT_APP_STOP, wxT("Stop"), wxPoint(100, 20));
+	wxButton* btnClose = new wxButton(panel, wxEVT_APP_STOP, wxT("Stop"), wxPoint(120, 12), wxSize(120, 28));
 	btnClose->SetFont(font);
 	btnClose->Show(true);
 
-	wxStaticText* txtSpeed = new wxStaticText(panel, wxID_ANY, wxT("Speed:"), wxPoint(20, 80));
+	wxStaticText* txtSpeed = new wxStaticText(panel, wxID_ANY, wxT("Speed:"), wxPoint(8, 60));
 	txtSpeed->SetFont(font);
 	txtSpeed->Show(true);
 
-	wxGauge* gaugeSpeed = new wxGauge(panel, wxID_ANY, 100, wxPoint(80, 80), wxSize(60, 20));
+	wxGauge* gaugeSpeed = new wxGauge(panel, wxID_ANY, 100, wxPoint(70, 60), wxSize(150, 20));
 	gaugeSpeed->Show(true);
 	gaugeSpeed->SetValue(20);
 
-	wxStaticText* txtPosition = new wxStaticText(panel, wxID_ANY, wxT("Position:"), wxPoint(20, 100));
+	wxStaticText* txtPosition = new wxStaticText(panel, wxID_ANY, wxT("Position:"), wxPoint(8, 80));
 	txtPosition->SetFont(font);
 	txtPosition->Show(true);
 
-	wxStaticText* txtTime = new wxStaticText(panel, wxID_ANY, wxT("Time:"), wxPoint(20, 120));
+	wxStaticText* txtTime = new wxStaticText(panel, wxID_ANY, wxT("Time:"), wxPoint(8, 100));
 	txtTime->SetFont(font);
 	txtTime->Show(true);
 
 	//Build menu
     wxMenu* fileMenu = new wxMenu;
-    wxMenuItem* saveFile = fileMenu->Append(wxEVT_APP_SAVEAS, wxT("&Save...\tCTRL+S"), wxT("Save file"));
+    wxMenuItem* openFile = fileMenu->Append(wxEVT_APP_OPEN, wxT("&Open...\tCTRL+O"), wxT("Open movie"));
+    wxMenuItem* saveFile = fileMenu->Append(wxEVT_APP_SAVEAS, wxT("&Save...\tCTRL+S"), wxT("Save movie"));
 
 	wxMenu* aboutMenu = new wxMenu;
+	wxMenu* optionsMenu = new wxMenu;
 
 	menuBar = new wxMenuBar;
     menuBar->Append(fileMenu, wxT("&File"));
+    menuBar->Append(optionsMenu, wxT("&Options"));
     menuBar->Append(aboutMenu, wxT("&About"));
 
     mainFrame->SetMenuBar(menuBar);
@@ -102,10 +107,34 @@ void Application::OnStop(wxCommandEvent& WXUNUSED(event))
 
 void Application::OnSaveAs(wxCommandEvent& WXUNUSED(event))
 {
+	/*
+	if(mode == MODE_PLAYBACK){
+		return false;
+	}
+	*/
+
 	wxFileDialog file(mainFrame, wxT("Save As..."), wxT(""),wxT(""),wxT("*.tmv"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	int result = file.ShowModal();
 
 	if(result == wxID_OK){
 		//
 	}
+}
+
+void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
+{
+	/*
+	if(mode == MODE_RECORDING){
+		return false;
+	}
+	*/
+
+	wxFileDialog file(mainFrame, wxT("Open..."), wxT(""),wxT(""),wxT("*.tmv"), wxFD_OPEN);
+	int result = file.ShowModal();
+
+	if(result == wxID_OK){
+		//
+	}
+
+	//inject dll
 }

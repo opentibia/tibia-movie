@@ -23,6 +23,7 @@
 extern const wxEventType wxEVT_APP_RECORD;
 extern const wxEventType wxEVT_APP_STOP;
 extern const wxEventType wxEVT_APP_SAVEAS;
+extern const wxEventType wxEVT_APP_OPEN;
 extern const wxEventType wxEVT_MAIN_FRAME_SAVE_FILE;
 
 class MainFrame;
@@ -34,6 +35,7 @@ public:
 
 	void OnRecord(wxCommandEvent&);
 	void OnStop(wxCommandEvent&);
+	void OnOpen(wxCommandEvent& WXUNUSED(event));
 	void OnSaveAs(wxCommandEvent& WXUNUSED(event));
 
 private:
