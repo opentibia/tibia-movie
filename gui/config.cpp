@@ -18,54 +18,56 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#include "debug.h"
-#include "stdio.h"
-#include "stdarg.h"
+#include "config.h"
+#include "../debug.h"
 
-FILE* g_debug = NULL;
-MessageType g_debugLevel = DEBUG_INFO;
+#include <wx/filename.h>
 
-void Debug::start(const char* name)
+Config::Config() :
+wxFileConfig("tibiamovie", wxEmptyString, "./tibiamovie.cfg",
+	wxEmptyString, wxCONFIG_USE_RELATIVE_PATH)
 {
-	g_debug = fopen(name, "w");
-	Debug::printf(DEBUG_INFO, "Start debug\n");
+	//
 }
 
-void Debug::stop()
+Config::~Config()
 {
-	Debug::printf(DEBUG_INFO, "End debug\n");
-	fclose(g_debug);
+	//
 }
 
-void Debug::setDebugLevel(MessageType level)
+wxString Config::getClientPath(ClientVersion version)
 {
-	g_debugLevel = level;
-}
+	//save previous path to restore it later
+	wxString oldPath = GetPath();
 
-int Debug::printf(MessageType type, const char* format, ...)
-{
-	if(type > g_debugLevel){
-		return 0;
+	SetPath("clients");
+	wxString clientStr;
+	clientStr.sprintf("%d.%d.%d", version.major, version.minor, version.revision);
+	if(Exists(clientStr)){
+		wxString wxPath;
+		if(Read(clientStr, &wxPath)){
+			//restore old path
+			SetPath(oldPath);
+			return wxPath;
+		}
 	}
-
-	switch(type){
-	case DEBUG_NONE:
-		break;
-	case DEBUG_ERROR:
-		fprintf(g_debug, "[ERROR] ");
-		break;
-	case DEBUG_INFO:
-		fprintf(g_debug, "[INFO] ");
-		break;
-	case DEBUG_NOTICE:
-		fprintf(g_debug, "[NOTICE] ");
-		break;
-	}
-	va_list listPtr;
-	va_start(listPtr, format);
-	int ret =  vfprintf(g_debug, format, listPtr);
-	va_end(listPtr);
-	fflush(g_debug);
-	return ret;
+	//restore old path
+	SetPath(oldPath);
+	return wxEmptyString;
 }
 
+
+void Config::setClientPath(ClientVersion version, const wxString& path)
+{
+	//save previous path to restore it later
+	wxString oldPath = GetPath();
+
+	SetPath("clients");
+	wxString clientStr, wxPath;
+
+	clientStr.sprintf("%d.%d.%d", version.major, version.minor, version.revision);
+	Write(clientStr, path);
+
+	//restore path
+	SetPath(oldPath);
+}

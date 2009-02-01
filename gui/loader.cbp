@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="loader" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\tbm.exe" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="..\tbm.exe" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\" />
+				<Option object_output="obj\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-D__GNUWIN32__" />
+			<Add option="-D__WXMSW__" />
+		</Compiler>
+		<Linker>
+			<Add library="libwxmsw28_core" />
+			<Add library="libwxbase28" />
+			<Add library="oleaut32" />
+			<Add library="ole32" />
+			<Add library="uuid" />
+			<Add library="comctl32" />
+			<Add library="comdlg32" />
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="z" />
+			<Add library="version" />
+		</Linker>
+		<Unit filename="..\clients.cpp" />
+		<Unit filename="..\clients.h" />
+		<Unit filename="..\codecs\codec.cpp" />
+		<Unit filename="..\codecs\codec.h" />
+		<Unit filename="..\codecs\codec_tmv.cpp" />
+		<Unit filename="..\codecs\codec_tmv.h" />
+		<Unit filename="..\common.cpp" />
+		<Unit filename="..\common.h" />
+		<Unit filename="..\debug.cpp" />
+		<Unit filename="..\debug.h" />
+		<Unit filename="config.cpp" />
+		<Unit filename="config.h" />
+		<Unit filename="gui.cpp" />
+		<Unit filename="gui.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

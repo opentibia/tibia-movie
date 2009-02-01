@@ -63,6 +63,8 @@ public:
 	virtual void start();
 	virtual void stop();
 
+	virtual uint32_t getName(){return 'TMV2';}
+
 protected:
 	enum TMVState{
 		TMV_STATE_PLAY,

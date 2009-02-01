@@ -56,10 +56,10 @@ Codec* Codec::getCodec(const char* file)
 	fread(&magic, 4, 1, f);
 	if(memcmp(magic, "TMV2", 4) == 0){
 		ret = new CodecTMV(0, file);
-		Debug::printf(DEBUG_INFO, "Codec: play TMV2\n");
+		Debug::printf(DEBUG_INFO, "Codec: player TMV2\n");
 	}
 	else{
-		Debug::printf(DEBUG_ERROR, "Codec: play not known\n");
+		Debug::printf(DEBUG_ERROR, "Codec: player not known\n");
 	}
 	fclose(f);
 	return ret;

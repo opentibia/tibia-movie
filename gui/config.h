@@ -18,54 +18,26 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
-#include "debug.h"
-#include "stdio.h"
-#include "stdarg.h"
+#ifndef __TBMV_CONFIG_H__
+#define __TBMV_CONFIG_H__
 
-FILE* g_debug = NULL;
-MessageType g_debugLevel = DEBUG_INFO;
+#include "../common.h"
+#include <wx/fileconf.h>
 
-void Debug::start(const char* name)
-{
-	g_debug = fopen(name, "w");
-	Debug::printf(DEBUG_INFO, "Start debug\n");
-}
+class Config : public wxFileConfig{
+private:
+	Config();
+	~Config();
 
-void Debug::stop()
-{
-	Debug::printf(DEBUG_INFO, "End debug\n");
-	fclose(g_debug);
-}
-
-void Debug::setDebugLevel(MessageType level)
-{
-	g_debugLevel = level;
-}
-
-int Debug::printf(MessageType type, const char* format, ...)
-{
-	if(type > g_debugLevel){
-		return 0;
+public:
+	static Config& getInstance(){
+		static Config config;
+		return config;
 	}
 
-	switch(type){
-	case DEBUG_NONE:
-		break;
-	case DEBUG_ERROR:
-		fprintf(g_debug, "[ERROR] ");
-		break;
-	case DEBUG_INFO:
-		fprintf(g_debug, "[INFO] ");
-		break;
-	case DEBUG_NOTICE:
-		fprintf(g_debug, "[NOTICE] ");
-		break;
-	}
-	va_list listPtr;
-	va_start(listPtr, format);
-	int ret =  vfprintf(g_debug, format, listPtr);
-	va_end(listPtr);
-	fflush(g_debug);
-	return ret;
-}
+	wxString getClientPath(ClientVersion version);
+	void setClientPath(ClientVersion version, const wxString& path);
+};
 
+
+#endif

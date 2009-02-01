@@ -37,6 +37,7 @@ Server::Server()
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(1,1), &wsadata);
 	m_clientSock = INVALID_SOCKET;
+	srand(time(NULL));
 	m_port = (rand() % 5000) + 10000;
 }
 

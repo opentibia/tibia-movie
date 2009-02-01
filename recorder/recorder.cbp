@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="recorder" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\tbrecord.dll" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="..\tbrecord.dll" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Wno-multichar" />
+			<Add option="-DBUILD_DLL" />
+		</Compiler>
+		<Linker>
+			<Add library="user32" />
+			<Add library="ws2_32" />
+			<Add library="z" />
+		</Linker>
+		<Unit filename="..\clients.cpp" />
+		<Unit filename="..\clients.h" />
+		<Unit filename="..\codecs\codec.cpp" />
+		<Unit filename="..\codecs\codec.h" />
+		<Unit filename="..\codecs\codec_tmv.cpp" />
+		<Unit filename="..\codecs\codec_tmv.h" />
+		<Unit filename="..\common.cpp" />
+		<Unit filename="..\common.h" />
+		<Unit filename="..\debug.cpp" />
+		<Unit filename="..\debug.h" />
+		<Unit filename="..\packet.cpp" />
+		<Unit filename="..\packet.h" />
+		<Unit filename="hook.cpp" />
+		<Unit filename="hook.h" />
+		<Unit filename="packet_rec.cpp" />
+		<Unit filename="packet_rec.h" />
+		<Unit filename="recorder.cpp" />
+		<Unit filename="recorder.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

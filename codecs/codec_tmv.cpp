@@ -50,7 +50,7 @@ CodecTMV::~CodecTMV()
 
 bool CodecTMV::checkHeader(FILE* file, TMV2Header& header)
 {
-	fread(&header, sizeof(header), 1, m_file);
+	fread(&header, sizeof(header), 1, file);
 	//Check magic
 	if(memcmp(&header.cheader.magic, "TMV2", 4) != 0){
 		fclose(file);

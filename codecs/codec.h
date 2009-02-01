@@ -46,6 +46,8 @@ public:
 	virtual void start() = 0;
 	virtual void stop() = 0;
 
+	virtual uint32_t getName() = 0;
+
 	const char* getFileName() const { return m_fileName.c_str();}
 	uint32_t getOptions() const { return m_options;}
 
@@ -63,6 +65,8 @@ class CodecText : public Codec {
 public:
 	CodecText(uint32_t options, const char* file);
 	virtual ~CodecText();
+
+	virtual uint32_t getName(){return 'TEXT';}
 
 	virtual bool getClientVersion(ClientVersion& version){ return false; }
 	virtual uint32_t getTotalTime(){ return 0;}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="player" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\tbplay.dll" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="..\tbplay.dll" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Wno-multichar" />
+		</Compiler>
+		<Linker>
+			<Add library="z" />
+			<Add library="ws2_32" />
+		</Linker>
+		<Unit filename="..\clients.cpp" />
+		<Unit filename="..\clients.h" />
+		<Unit filename="..\codecs\codec.cpp" />
+		<Unit filename="..\codecs\codec.h" />
+		<Unit filename="..\codecs\codec_tmv.cpp" />
+		<Unit filename="..\codecs\codec_tmv.h" />
+		<Unit filename="..\common.cpp" />
+		<Unit filename="..\common.h" />
+		<Unit filename="..\debug.cpp" />
+		<Unit filename="..\debug.h" />
+		<Unit filename="..\packet.cpp" />
+		<Unit filename="..\packet.h" />
+		<Unit filename="hook.cpp" />
+		<Unit filename="hook.h" />
+		<Unit filename="server.cpp" />
+		<Unit filename="server.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -18,6 +18,9 @@
 // Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////
 
+#ifndef __TBMV_GUI_H__
+#define __TBMV_GUI_H__
+
 #include <wx/wx.h>
 
 extern const wxEventType wxEVT_APP_RECORD;
@@ -32,6 +35,7 @@ class Application : public wxApp
 {
 public:
     virtual bool OnInit();
+    virtual int OnExit();
 
 	void OnRecord(wxCommandEvent&);
 	void OnStop(wxCommandEvent&);
@@ -39,6 +43,9 @@ public:
 	void OnSaveAs(wxCommandEvent& WXUNUSED(event));
 
 private:
+
+	void errorMessage(wxString msg);
+
 	MainFrame* mainFrame;
 	wxMenuBar* menuBar;
 
@@ -51,3 +58,5 @@ public:
     MainFrame(const wxString& title);
 
 };
+
+#endif
