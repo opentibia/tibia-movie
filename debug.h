@@ -33,6 +33,6 @@ namespace Debug{
 	void stop();
 	void setDebugLevel(MessageType level);
 	int printf(MessageType type, const char* format, ...);
-};
+}
 
 #endif

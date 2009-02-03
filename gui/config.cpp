@@ -24,7 +24,7 @@
 #include <wx/filename.h>
 
 Config::Config() :
-wxFileConfig("tibiamovie", wxEmptyString, "./tibiamovie.cfg",
+wxFileConfig(wxT("tibiamovie"), wxEmptyString, wxT("./tibiamovie.cfg"),
 	wxEmptyString, wxCONFIG_USE_RELATIVE_PATH)
 {
 	//
@@ -40,9 +40,9 @@ wxString Config::getClientPath(ClientVersion version)
 	//save previous path to restore it later
 	wxString oldPath = GetPath();
 
-	SetPath("clients");
+	SetPath(wxT("clients"));
 	wxString clientStr;
-	clientStr.sprintf("%d.%d.%d", version.major, version.minor, version.revision);
+	clientStr.sprintf(wxT("%d.%d.%d"), version.major, version.minor, version.revision);
 	if(Exists(clientStr)){
 		wxString wxPath;
 		if(Read(clientStr, &wxPath)){
@@ -62,10 +62,10 @@ void Config::setClientPath(ClientVersion version, const wxString& path)
 	//save previous path to restore it later
 	wxString oldPath = GetPath();
 
-	SetPath("clients");
+	SetPath(wxT("clients"));
 	wxString clientStr, wxPath;
 
-	clientStr.sprintf("%d.%d.%d", version.major, version.minor, version.revision);
+	clientStr.sprintf(wxT("%d.%d.%d"), version.major, version.minor, version.revision);
 	Write(clientStr, path);
 
 	//restore path

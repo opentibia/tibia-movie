@@ -153,7 +153,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 
 	if(result == wxID_OK){
 		wxString fileName = file.GetPath();
-		Codec* codec = Codec::getCodec(fileName.c_str());
+		Codec* codec = Codec::getCodec(fileName.mb_str());
 		if(!codec){
 			errorMessage(wxT("It is not a valid movie!"));
 			return;
@@ -167,7 +167,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			bool versionCheck = false;
 			do{
 				wxString caption;
-				caption.sprintf("Select Tibia %d.%d.%d directory...", version.major, version.minor, version.revision);
+				caption.sprintf(wxT("Select Tibia %d.%d.%d directory..."), version.major, version.minor, version.revision);
 				wxDirDialog dir(mainFrame, caption, wxT(""), wxDD_DIR_MUST_EXIST);
 				int result = dir.ShowModal();
 				if(result == wxID_OK){
@@ -183,7 +183,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 						if(GetFileVersionInfo(tibiaExe.c_str(), 0, dwSize, (LPVOID)verData)){
 							VS_FIXEDFILEINFO* verQueryData;
 							UINT verQuerySize;
-							if(VerQueryValue((LPVOID)verData, "\\", (LPVOID*)&verQueryData, &verQuerySize)){
+							if(VerQueryValue((LPVOID)verData, wxT("\\"), (LPVOID*)&verQueryData, &verQuerySize)){
 								if(verQuerySize == sizeof(VS_FIXEDFILEINFO)){
 									ClientVersion testVersion;
 									testVersion.major = HIWORD(verQueryData->dwFileVersionMS);
@@ -233,8 +233,8 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 
 		wxFileName wxTibiaExe(tibiaPath, wxT("Tibia.exe"));
 		wxString tibiaExe = wxTibiaExe.GetFullPath();
-		int created = CreateProcess(NULL, tibiaExe.char_str(), NULL, NULL, FALSE,
-							CREATE_SUSPENDED, NULL, tibiaPath.c_str(), &SInfo, &PInfo);
+		int created = CreateProcess(NULL, (LPWSTR)(tibiaExe.c_str()), NULL, NULL, FALSE,
+					CREATE_SUSPENDED, NULL, (LPCWSTR)(tibiaPath.c_str()), &SInfo, &PInfo);
 		if(!created){
 			errorMessage(wxT("Error starting Tibia.exe!"));
 			return;
@@ -249,7 +249,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 
 			//check client window
 			//FIX. This fails when there are more than 1 client running
-			tibiaWindow = FindWindow("TibiaClient", "Tibia");
+			tibiaWindow = FindWindow(wxT("TibiaClient"), wxT("Tibia"));
 			if(tibiaWindow){
 				break;
 			}
@@ -262,7 +262,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 
 			//check that the process is still alive
 			DWORD exitCode;
-			bool ret = GetExitCodeProcess(process, &exitCode);
+			bool ret = GetExitCodeProcess(process, &exitCode) != 0;
 			if(!ret || exitCode != STILL_ACTIVE){
 				break;
 			}
@@ -276,7 +276,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 		//suspend before injecting the dll
 		Sleep(500);
 		SuspendThread(PInfo.hThread);
-		SetWindowText(tibiaWindow, "Tibia - TibiaMovie");
+		SetWindowText(tibiaWindow, wxT("Tibia - TibiaMovie"));
 
 		//setup player options
 		RecordOptions options;
@@ -288,11 +288,11 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			TerminateProcess(process, 0);
 			return;
 		}
-		strcpy(options.fileName, fileName.c_str());
+		strcpy(options.fileName, fileName.mb_str());
 
 		//and copy player options
 		HANDLE hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-			0, sizeof(options), "TibiaMovie1");
+			0, sizeof(options), wxT("TibiaMovie1"));
 		if(!hFileMapping){
 			errorMessage(wxT("Internal error. CreateFileMapping"));
 			TerminateProcess(process, 0);
@@ -308,9 +308,9 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 		memcpy(m_pvData, &options, sizeof(options));
 
 		//inject dll
-		wxFileName wxTBPlayerDLL(wxGetCwd(), "tbplay.dll");
+		wxFileName wxTBPlayerDLL(wxGetCwd(), wxT("tbplay.dll"));
 		wxString library = wxTBPlayerDLL.GetFullPath();
-		PVOID mem = VirtualAllocEx(process, NULL, strlen(library.c_str()) + 1, MEM_COMMIT, PAGE_READWRITE);
+		PVOID mem = VirtualAllocEx(process, NULL, strlen(library.mb_str()) + 1, MEM_COMMIT, PAGE_READWRITE);
 		if(mem == NULL){
 			errorMessage(wxT("Internal error. VirtualAllocEx"));
 			TerminateProcess(process, 0);
@@ -318,7 +318,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			CloseHandle(hFileMapping);
 			return ;
 		}
-		if(WriteProcessMemory(process, mem, (void*)library.char_str(), strlen(library) + 1, NULL) == 0){
+		if(WriteProcessMemory(process, mem, (void*)library.mb_str().data(), strlen(library.mb_str()) + 1, NULL) == 0){
 			errorMessage(wxT("Internal error. WriteProcessMemory"));
 			TerminateProcess(process, 0);
 			UnmapViewOfFile(m_pvData);
@@ -326,7 +326,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			return;
 		}
 
-		HANDLE hThread = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"LoadLibraryA"), mem, 0, NULL);
+		HANDLE hThread = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE) GetProcAddress(GetModuleHandle(wxT("KERNEL32.DLL")), (LPCSTR)wxT("LoadLibraryA")), mem, 0, NULL);
 		if(hThread == INVALID_HANDLE_VALUE){
 			errorMessage(wxT("Internal error. CreateRemoteThread"));
 			TerminateProcess(process, 0);
@@ -351,7 +351,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			return;
 		}
 		CloseHandle(hThread);
-		VirtualFreeEx(process, mem, strlen(library) + 1, MEM_RELEASE);
+		VirtualFreeEx(process, mem, strlen(library.mb_str()) + 1, MEM_RELEASE);
 
 		//free file mapping
 		UnmapViewOfFile(m_pvData);

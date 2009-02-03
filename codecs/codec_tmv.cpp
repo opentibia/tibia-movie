@@ -212,7 +212,7 @@ void CodecTMV::start()
 	tmp8 = recOptions.client.revision;
 	fwrite(&tmp8, sizeof(tmp8), 1, m_file);
 	//date & time
-	tmp32 = time(NULL);
+	tmp32 = (uint32_t)time(NULL);
 	fwrite(&tmp32, sizeof(tmp32), 1, m_file);
 
 	//**allocate space for info that have to

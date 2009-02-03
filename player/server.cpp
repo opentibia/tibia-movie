@@ -22,8 +22,11 @@
 #include "server.h"
 #include "../codecs/codec.h"
 #include "../debug.h"
+#include <time.h>
 
+#ifndef min
 #define min(x,y) ((x < y) ? (x) : (y))
+#endif
 
 Server::Server()
 {
@@ -37,7 +40,7 @@ Server::Server()
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(1,1), &wsadata);
 	m_clientSock = INVALID_SOCKET;
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	m_port = (rand() % 5000) + 10000;
 }
 
