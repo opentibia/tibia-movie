@@ -233,8 +233,8 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 
 		wxFileName wxTibiaExe(tibiaPath, wxT("Tibia.exe"));
 		wxString tibiaExe = wxTibiaExe.GetFullPath();
-		int created = CreateProcess(NULL, (LPWSTR)(tibiaExe.c_str()), NULL, NULL, FALSE,
-					CREATE_SUSPENDED, NULL, (LPCWSTR)(tibiaPath.c_str()), &SInfo, &PInfo);
+		int created = CreateProcess(NULL, (LPSTR)(tibiaExe.c_str()), NULL, NULL, FALSE,
+					CREATE_SUSPENDED, NULL, (LPCSTR)(tibiaPath.c_str()), &SInfo, &PInfo);
 		if(!created){
 			errorMessage(wxT("Error starting Tibia.exe!"));
 			return;
@@ -318,7 +318,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			CloseHandle(hFileMapping);
 			return ;
 		}
-		if(WriteProcessMemory(process, mem, (void*)library.mb_str().data(), strlen(library.mb_str()) + 1, NULL) == 0){
+		if(WriteProcessMemory(process, mem, (void*)library.mb_str(), strlen(library.mb_str()) + 1, NULL) == 0){
 			errorMessage(wxT("Internal error. WriteProcessMemory"));
 			TerminateProcess(process, 0);
 			UnmapViewOfFile(m_pvData);
