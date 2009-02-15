@@ -38,7 +38,7 @@ END_EVENT_TABLE()
 #include "config.h"
 
 MainFrame::MainFrame(const wxString& title)
-       : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(200, 330))
+	: wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(200, 330))
 {
 	Centre();
 }
@@ -47,7 +47,7 @@ IMPLEMENT_APP(Application)
 
 bool Application::OnInit()
 {
-	Debug::start("gui_debug.txt");
+	Debug::start("debug_gui.txt");
 
     mainFrame = new MainFrame(wxT("TibiaMovie"));
 	mainFrame->SetSize(wxSize(256, 200));
@@ -60,28 +60,14 @@ bool Application::OnInit()
 	wxFont font(10, wxDEFAULT, wxNORMAL, wxBOLD);
 
 	wxButton* btnRecord = new wxButton(panel, wxEVT_APP_RECORD, wxT("Record"), wxPoint(8, 12), wxSize(120, 28));
-	btnRecord->Show(true);
 	btnRecord->SetFont(font);
+	btnRecord->Enable(false);
+	btnRecord->Show(true);
 
 	wxButton* btnClose = new wxButton(panel, wxEVT_APP_STOP, wxT("Stop"), wxPoint(120, 12), wxSize(120, 28));
 	btnClose->SetFont(font);
+	btnClose->Enable(false);
 	btnClose->Show(true);
-
-	wxStaticText* txtSpeed = new wxStaticText(panel, wxID_ANY, wxT("Speed:"), wxPoint(8, 60));
-	txtSpeed->SetFont(font);
-	txtSpeed->Show(true);
-
-	wxGauge* gaugeSpeed = new wxGauge(panel, wxID_ANY, 100, wxPoint(70, 60), wxSize(150, 20));
-	gaugeSpeed->Show(true);
-	gaugeSpeed->SetValue(0);
-
-	wxStaticText* txtPosition = new wxStaticText(panel, wxID_ANY, wxT("Position:"), wxPoint(8, 80));
-	txtPosition->SetFont(font);
-	txtPosition->Show(true);
-
-	wxStaticText* txtTime = new wxStaticText(panel, wxID_ANY, wxT("Time:"), wxPoint(8, 100));
-	txtTime->SetFont(font);
-	txtTime->Show(true);
 
 	//Build menu
     wxMenu* fileMenu = new wxMenu;
@@ -267,6 +253,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 				break;
 			}
 		}
+		Sleep(500);
 		if(!tibiaWindow){
 			//something went wrong while waiting
 			errorMessage(wxT("Error waiting Tibia.exe"));

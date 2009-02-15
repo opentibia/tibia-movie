@@ -28,9 +28,9 @@
 #define min(x,y) ((x < y) ? (x) : (y))
 #endif
 
+
 Server::Server()
 {
-	m_playSpeed = 1.f;
 	m_isEncrypted = false;
 	m_hasCRC = false;
 	m_state = SERVER_STATE_LOGIN;
@@ -77,6 +77,10 @@ DWORD WINAPI Server::serverThread(Server* this_ptr)
 	if(this_ptr->m_state != SERVER_STATE_LOGIN){
 		return 1;
 	}
+	//setup server status
+	PlayerStatus& status = PlayerStatus::getInstance();
+	status.setTotalTime(this_ptr->m_codec->getTotalTime());
+
 	//open listen socket
 	SOCKET listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(listenSock == INVALID_SOCKET){
@@ -114,7 +118,16 @@ DWORD WINAPI Server::serverThread(Server* this_ptr)
 	this_ptr->m_packet.clearSendBuffer();
 	this_ptr->m_packet.addU8(0x64); //char list
 	this_ptr->m_packet.addU8(1); //1 "char"
-	this_ptr->m_packet.addString(this_ptr->m_fileName.c_str()); // file name
+	//extract file name from the full path
+	std::string filename = this_ptr->m_fileName;
+	for(size_t i = filename.size()-1; i >= 0; i--){
+		if(filename.c_str()[i] == '/' || filename.c_str()[i] == '\\'){
+			std::string tmp = filename.substr(i+1);
+			filename = tmp;
+			break;
+		}
+	}
+	this_ptr->m_packet.addString(filename.c_str()); // file name
 	this_ptr->m_packet.addString("TibiaMovie"); //server
 	this_ptr->m_packet.addU32(inet_addr("127.0.0.1")); //ip
 	this_ptr->m_packet.addU16(htons(27591)); //port
@@ -132,14 +145,41 @@ DWORD WINAPI Server::serverThread(Server* this_ptr)
 	Debug::printf(DEBUG_NOTICE, "game client\n");
 
 	this_ptr->m_packet.setRawMode(true);
-	this_ptr->m_codec->getFirstPacket();
 
+	//start to play the movie
+	this_ptr->m_codec->getFirstPacket();
+	status.setCurrentTime(0);
+	uint32_t currentTime = 0;
 	uint32_t lasttimestamp = 0;
 	uint32_t timestamp;
 	while(this_ptr->m_codec->getNextPacket(this_ptr->m_packet.getBuffer(),
 				this_ptr->m_packet.getSize(), timestamp)){
-		Debug::printf(DEBUG_NOTICE, "packet time: %d\n", timestamp);
-		if(lasttimestamp != 0) Sleep(timestamp - lasttimestamp);
+		if(lasttimestamp != 0){
+			int32_t delay = (timestamp - lasttimestamp);
+
+			while(status.getPlaySpeed() < 0.01 || delay > 0){
+				float speed = status.getPlaySpeed();
+				if(speed < 0.01){
+					//player is paused
+					Sleep(150);
+				}
+				else{
+					//if the delay is large, split it
+					if(delay/speed > 150){
+						Sleep(150);
+						delay -= (int32_t)(150*speed);
+						currentTime += (int32_t)(150*speed);
+					}
+					else{
+						Sleep((int32_t)(delay/speed));
+						currentTime += delay;
+						delay = 0;
+					}
+					status.setCurrentTime(currentTime);
+				}
+			}
+		}
+		Debug::printf(DEBUG_NOTICE, "packet time: %d - %d\n", timestamp, currentTime);
 		this_ptr->sendPacket();
 		lasttimestamp = timestamp;
 	}

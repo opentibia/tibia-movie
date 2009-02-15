@@ -22,7 +22,6 @@
 #include "windows.h"
 #include "debug.h"
 #include "clients.h"
-#include "wx/wx.h"
 
 RecordOptions g_options;
 ClientInfo g_info;
@@ -45,7 +44,7 @@ bool writeU32(uint32_t* address, const uint32_t value)
 
 bool getRecordOptions()
 {
-	HANDLE hFileMapping = OpenFileMapping(PAGE_READWRITE, FALSE, wxT("TibiaMovie1"));
+	HANDLE hFileMapping = OpenFileMapping(PAGE_READWRITE, FALSE, "TibiaMovie1");
 	if(!hFileMapping){
 		Debug::printf(DEBUG_ERROR, ("Error opening file mapping\n"));
 		return false;

@@ -35,6 +35,17 @@
 		<Linker>
 			<Add library="z" />
 			<Add library="ws2_32" />
+			<Add library="libwxmsw28_core" />
+			<Add library="libwxbase28" />
+			<Add library="oleaut32" />
+			<Add library="ole32" />
+			<Add library="uuid" />
+			<Add library="comctl32" />
+			<Add library="comdlg32" />
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="version" />
 		</Linker>
 		<Unit filename="..\clients.cpp" />
 		<Unit filename="..\clients.h" />
@@ -48,6 +59,8 @@
 		<Unit filename="..\debug.h" />
 		<Unit filename="..\packet.cpp" />
 		<Unit filename="..\packet.h" />
+		<Unit filename="gui.cpp" />
+		<Unit filename="gui.h" />
 		<Unit filename="hook.cpp" />
 		<Unit filename="hook.h" />
 		<Unit filename="server.cpp" />

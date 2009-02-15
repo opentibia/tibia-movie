@@ -28,13 +28,43 @@
 
 class Codec;
 
+class PlayerStatus{
+private:
+	PlayerStatus(){
+		m_totalTime = 1;
+		m_currentTime = 0;
+		m_playSpeed = 1.0f;
+	}
+public:
+	~PlayerStatus(){};
+	static PlayerStatus& getInstance(){
+		static PlayerStatus status;
+		return status;
+	}
+
+	uint32_t getTotalTime() const {return m_totalTime;}
+	void setTotalTime(uint32_t time){m_totalTime = time;}
+
+	uint32_t getCurrentTime() const {return m_currentTime;}
+	void setCurrentTime(uint32_t time){m_currentTime = time;}
+
+	float getPlaySpeed() const {return m_playSpeed;}
+	void setPlaySpeed(float speed){m_playSpeed = speed;}
+
+private:
+
+	uint32_t m_totalTime;
+	uint32_t m_currentTime;
+
+	float m_playSpeed;
+};
+
 class Server{
 public:
 	Server();
 	~Server();
 
 	void setFile(const char* file) {m_fileName = file;}
-	void setPlaySpeed(float speed) {m_playSpeed = speed;}
 
 	void setCrypto(uint32_t* const key);
 	void setCRC(){m_packet.setCRC();}
@@ -51,7 +81,6 @@ private:
 	bool sendPacket();
 
 	std::string m_fileName;
-	float m_playSpeed;
 
 	enum ServerState{
 		SERVER_STATE_LOGIN,
