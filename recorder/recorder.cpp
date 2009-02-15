@@ -26,7 +26,7 @@
 Recorder::Recorder(const RecordOptions& options)
 {
 	m_options = options;
-	m_startTime = GetTickCount();
+	m_startTime = 0;
 	m_codec = Codec::getCodec(options.codecName, options.codecOptions, &(options.fileName[0]));
 
 	if(m_codec){
@@ -42,6 +42,7 @@ Recorder::~Recorder()
 
 bool Recorder::record(unsigned char* const raw, int len)
 {
+	if(m_startTime == 0) m_startTime = GetTickCount();
 	if(m_codec) return m_codec->record(raw, len, GetTickCount() - m_startTime);
 
 	return false;

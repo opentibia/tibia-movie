@@ -32,6 +32,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-Wno-multichar" />
 			<Add option="-D__GNUWIN32__" />
 			<Add option="-D__WXMSW__" />
 		</Compiler>
@@ -48,6 +49,7 @@
 			<Add library="kernel32" />
 			<Add library="z" />
 			<Add library="version" />
+			<Add library="psapi" />
 		</Linker>
 		<Unit filename="..\clients.cpp" />
 		<Unit filename="..\clients.h" />

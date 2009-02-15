@@ -21,6 +21,7 @@
 #ifndef __TBMV_HOOKPLAY__H__
 #define __TBMV_HOOKPLAY__H__
 
+#include "../common.h"
 #include <winsock2.h>
 #include <windows.h>
 

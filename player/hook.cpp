@@ -61,7 +61,6 @@ int WSAAPI sendHook(SOCKET s, const char* buf, int len, int flags)
 
 int WSAAPI connectHook(SOCKET s, sockaddr *name, int namelen)
 {
-	//if(!g_server.isStarted()) g_server.startServer();
 	Debug::printf(DEBUG_NOTICE, "connect hook: \n");
 	if(namelen == sizeof(sockaddr_in)){
 		sockaddr_in* sin = (sockaddr_in*)name;

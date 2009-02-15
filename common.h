@@ -21,6 +21,9 @@
 #ifndef __TBMV_COMMON_H__
 #define __TBMV_COMMON_H__
 
+//set minimum OS to windows 2000
+#define _WIN32_WINNT 0x0500
+
 #if defined(_MSC_VER)
 typedef signed __int8 int8_t;
 typedef signed __int16 int16_t;
@@ -35,6 +38,9 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 struct ClientVersion{
+ClientVersion(){
+	major = -1; minor = -1; revision = -1;
+}
 	int major;
 	int minor;
 	int revision;

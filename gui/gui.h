@@ -21,6 +21,7 @@
 #ifndef __TBMV_GUI_H__
 #define __TBMV_GUI_H__
 
+#include "../common.h"
 #include <wx/wx.h>
 
 extern const wxEventType wxEVT_APP_RECORD;
@@ -30,6 +31,7 @@ extern const wxEventType wxEVT_APP_OPEN;
 extern const wxEventType wxEVT_MAIN_FRAME_SAVE_FILE;
 
 class MainFrame;
+struct ClientVersion;
 
 class Application : public wxApp
 {
@@ -45,6 +47,11 @@ public:
 private:
 
 	void errorMessage(wxString msg);
+
+	ClientVersion getFileVersion(LPCSTR file);
+	bool injectDll(const wxString& dllName, const RecordOptions& options, const HANDLE process);
+
+	void terminateProcess(const PROCESS_INFORMATION& PInfo);
 
 	MainFrame* mainFrame;
 	wxMenuBar* menuBar;

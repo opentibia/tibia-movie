@@ -22,7 +22,6 @@
 #include "../debug.h"
 #include "server.h"
 
-
 BEGIN_EVENT_TABLE(PlayerApplication, wxApp)
 	EVT_KEY_DOWN(PlayerApplication::OnKeyDown)
 END_EVENT_TABLE()
@@ -104,15 +103,12 @@ MainFrame::MainFrame(const wxString& title)
 	fgSizer5->Add( m_button7, 0, wxALL, 5 );
 
 	m_button8 = new wxButton( panel, wxEVT_PLAY, wxT("Play"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button8->Enable(false);
 	fgSizer5->Add( m_button8, 0, wxALL, 5 );
 
 	m_button9 = new wxButton( panel, wxEVT_PAUSE, wxT("Pause"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button9->Enable(false);
 	fgSizer5->Add( m_button9, 0, wxALL, 5 );
 
 	m_button10 = new wxButton( panel, wxEVT_FORDWARD, wxT("Forward"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button10->Enable(false);
 	fgSizer5->Add( m_button10, 0, wxALL, 5 );
 
 	fgSizer3->Add( fgSizer5, 1, wxEXPAND, 5 );
@@ -144,17 +140,17 @@ void MainFrame::OnRewind(wxCommandEvent& event)
 
 void MainFrame::OnPlay(wxCommandEvent& event)
 {
-	//
+	PlayerStatus::getInstance().setPlaySpeed(1.f);
 }
 
 void MainFrame::OnPause(wxCommandEvent& event)
 {
-	//
+	PlayerStatus::getInstance().setPlaySpeed(0.f);
 }
 
 void MainFrame::OnFordward(wxCommandEvent& event)
 {
-	//
+	PlayerStatus::getInstance().setPlaySpeed(5.f);
 }
 
 void MainFrame::onTimer(wxTimerEvent& event)

@@ -21,6 +21,7 @@
 #ifndef __TBMV_GUIPLAY__H__
 #define __TBMV_GUIPLAY__H__
 
+#include "../common.h"
 #include <wx/wx.h>
 
 class MainFrame;

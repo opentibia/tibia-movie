@@ -150,11 +150,11 @@ DWORD WINAPI Server::serverThread(Server* this_ptr)
 	this_ptr->m_codec->getFirstPacket();
 	status.setCurrentTime(0);
 	uint32_t currentTime = 0;
-	uint32_t lasttimestamp = 0;
+	int32_t lasttimestamp = -1;
 	uint32_t timestamp;
 	while(this_ptr->m_codec->getNextPacket(this_ptr->m_packet.getBuffer(),
 				this_ptr->m_packet.getSize(), timestamp)){
-		if(lasttimestamp != 0){
+		if(lasttimestamp != -1){
 			int32_t delay = (timestamp - lasttimestamp);
 
 			while(status.getPlaySpeed() < 0.01 || delay > 0){

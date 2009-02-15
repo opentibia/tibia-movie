@@ -76,7 +76,7 @@ int WSAAPI recvHook(SOCKET s, char* buf, int len, int flags)
 
 HookRecord::HookRecord()
 {
-	Debug::start("debug.txt");
+	Debug::start("debug_rec.txt");
 	getRecordOptions();
 
 	g_packet = new PacketRecord;
