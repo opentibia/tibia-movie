@@ -19,6 +19,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
+#include "../common.h"
 #include "server.h"
 #include "../codecs/codec.h"
 #include "../debug.h"

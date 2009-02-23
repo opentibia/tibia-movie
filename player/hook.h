@@ -22,8 +22,6 @@
 #define __TBMV_HOOKPLAY__H__
 
 #include "../common.h"
-#include <winsock2.h>
-#include <windows.h>
 
 #ifdef BUILD_DLL
     #define DLL_EXPORT __declspec(dllexport)

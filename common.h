@@ -24,6 +24,8 @@
 //set minimum OS to windows 2000
 #define _WIN32_WINNT 0x0500
 
+#include <winsock2.h>
+
 #if defined(_MSC_VER)
 typedef signed __int8 int8_t;
 typedef signed __int16 int16_t;

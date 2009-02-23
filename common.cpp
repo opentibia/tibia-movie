@@ -19,7 +19,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "common.h"
-#include "windows.h"
 #include "debug.h"
 #include "clients.h"
 
