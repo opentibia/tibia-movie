@@ -28,6 +28,9 @@
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
+	//Debug::printf(DEBUG_NOTICE, "DllMain: \n");
+	MessageBox (NULL, "DllMain" , "DllMain", 0);
+
 	if(fdwReason == DLL_PROCESS_ATTACH){
 
 	}

@@ -226,15 +226,16 @@ bool Application::injectDll(const wxString& dllName, const RecordOptions& option
 
 	//inject dll
 	wxFileName wxTBPlayerDLL(wxGetCwd(), dllName);
-	wxString library = wxTBPlayerDLL.GetFullPath();
-	PVOID mem = VirtualAllocEx(process, NULL, strlen(library.mb_str()) + 1, MEM_COMMIT, PAGE_READWRITE);
+	std::string library = std::string(wxTBPlayerDLL.GetFullPath().mb_str());
+
+	PVOID mem = VirtualAllocEx(process, NULL, strlen(library.c_str()) + 1, MEM_COMMIT, PAGE_READWRITE);
 	if(mem == NULL){
 		errorMessage(wxT("Internal error. VirtualAllocEx"));
 		UnmapViewOfFile(m_pvData);
 		CloseHandle(hFileMapping);
 		return false;
 	}
-	if(WriteProcessMemory(process, mem, (void*)library.mb_str(), strlen(library.mb_str()) + 1, NULL) == 0){
+	if(WriteProcessMemory(process, mem, (void*)library.c_str(), strlen(library.c_str()) + 1, NULL) == 0){
 		errorMessage(wxT("Internal error. WriteProcessMemory"));
 		UnmapViewOfFile(m_pvData);
 		CloseHandle(hFileMapping);
@@ -263,7 +264,7 @@ bool Application::injectDll(const wxString& dllName, const RecordOptions& option
 		return false;
 	}
 	CloseHandle(hThread);
-	VirtualFreeEx(process, mem, strlen(library.mb_str()) + 1, MEM_RELEASE);
+	VirtualFreeEx(process, mem, strlen(library.c_str()) + 1, MEM_RELEASE);
 
 	//free file mapping
 	UnmapViewOfFile(m_pvData);
@@ -403,7 +404,7 @@ void Application::OnOpen(wxCommandEvent& WXUNUSED(event))
 			terminateProcess(PInfo);
 			return;
 		}
-		strcpy(options.fileName, fileName.mb_str());
+		strcpy(options.fileName, fileName.c_str());
 
 		// inject the dll
 		if(!injectDll(wxT("tbplay.dll"), options, process)){

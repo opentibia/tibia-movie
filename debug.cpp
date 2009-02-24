@@ -34,7 +34,9 @@ void Debug::start(const char* name)
 void Debug::stop()
 {
 	Debug::printf(DEBUG_INFO, "End debug\n");
-	fclose(g_debug);
+	if(g_debug){
+		fclose(g_debug);
+	}
 }
 
 void Debug::setDebugLevel(MessageType level)
@@ -44,6 +46,10 @@ void Debug::setDebugLevel(MessageType level)
 
 int Debug::printf(MessageType type, const char* format, ...)
 {
+	if(!g_debug){
+		return 0;
+	}
+
 	if(type > g_debugLevel){
 		return 0;
 	}
